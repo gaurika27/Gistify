@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Transcript Summarizer</title>
+    <style>
+        body {
+            width: 350px;
+            min-height: 400px;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .url-display {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            word-break: break-all;
+            max-height: 60px;
+            overflow-y: auto;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+        }
+
+        .control-group select option {
+            background: #333;
+            color: white;
+        }
+
+        .control-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .summarize-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .summarize-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .summarize-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #ffeb3b;
+        }
+
+        .result p {
+            margin: 0;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .result-stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #ffcdd2;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-indicator.active {
+            background: #4caf50;
+        }
+
+        .status-indicator.inactive {
+            background: #f44336;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 YouTube Summarizer</h1>
+            <p>AI-powered transcript summarization</p>
+        </div>
+
+        <div id="urlDisplay" class="url-display">
+            <div class="status-indicator inactive"></div>
+            <span id="currentUrl">Navigate to a YouTube video</span>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="summaryLength">Summary Length:</label>
+                <input type="range" id="summaryLength" min="50" max="300" value="150">
+                <span id="lengthValue">150 words</span>
+            </div>
+
+            <div class="control-group">
+                <label for="summaryMethod">Summarization Method:</label>
+                <select id="summaryMethod">
+                    <option value="auto">Auto (Recommended)</option>
+                    <option value="transformer">Transformer (Abstractive)</option>
+                    <option value="lsa">LSA (Extractive)</option>
+                </select>
+            </div>
+        </div>
+
+        <button id="summarizeBtn" class="summarize-btn">
+            📝 Summarize Video
+        </button>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Analyzing transcript...</p>
+        </div>
+
+        <div id="result" class="result" style="display: none;">
+            <h3>📋 Summary</h3>
+            <p id="summaryText"></p>
+            <div class="result-stats">
+                <span>Original: <span id="originalLength">-</span> chars</span>
+                <span>Summary: <span id="summaryLength">-</span> chars</span>
+                <span>Method: <span id="methodUsed">-</span></span>
+            </div>
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <p id="errorMessage"></p>
+        </div>
+
+        <div class="footer">
+            <p>Powered by NLP & Transformers</p>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
