@@ -72,7 +72,7 @@ Gistify/
   - Some videos may lack transcripts
   - Large transcripts may take a few seconds
 
-## Project Screenshot
+## 📷 Project Screenshot
 <img width="520" height="656" alt="image" src="https://github.com/user-attachments/assets/88d98a0b-009b-440a-becd-e17cc10b0c2d" />
 
 
