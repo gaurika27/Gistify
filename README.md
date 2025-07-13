@@ -57,15 +57,16 @@ Gistify is a powerful Chrome Extension that provides concise summaries of YouTub
  - Returns API status.
 
 ## 📂 Project Structure
+```bash
 Gistify/
-├── TranscriptApp.py       # Flask API
-├── requirements.txt       # Python dependencies
-├── manifest.json          # Chrome extension config
-├── popup.html/.js         # Extension UI
-├── content.js             # YouTube page integration
-├── background.js          # Background communication
-└── venv/                  # (add to .gitignore)
-
+  ├── TranscriptApp.py       # Flask API
+  ├── requirements.txt       # Python dependencies
+  ├── manifest.json          # Chrome extension config
+  ├── popup.html/.js         # Extension UI
+  ├── content.js             # YouTube page integration
+  ├── background.js          # Background communication
+  └── venv/                  # (add to .gitignore)
+```
 ## 🧪 Troubleshooting
   - Ensure Flask is running at http://127.0.0.1:5000/
   - Some videos may lack transcripts
